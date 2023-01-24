@@ -7,6 +7,10 @@ const btnLoadMore = document.querySelector('.load-more');
 
 let page = 1
 
+    const search = searchForm.elements.searchQuery.value
+    
+    const url = `https://pixabay.com/api/?key=33016808-d330fe94469becbda09795ec3&`
+
 btnLoadMore.addEventListener('click', onLoad)
 
 searchForm.addEventListener('submit', onSearch)
@@ -14,28 +18,25 @@ searchForm.addEventListener('submit', onSearch)
 function onSearch(e) {
   e.preventDefault();
         gallery.textContent = ''
-    const search = e.currentTarget.elements.searchQuery.value
-    
-    const url = `https://pixabay.com/api/?key=33016808-d330fe94469becbda09795ec3&`
+
+    pixabay()
+      .then(data => {        
+        createMarkup(data.hits)
+        btnLoadMore.hidden = false
+        page += 1
+      })
+        .catch(error => console.log(error.message))
+}
 
   async function pixabay(page = 1) {
       const resp = await axios.get(`${url}q=${search}&image_type=photo&orientation=horizontal&safesearch=true&per_page=5&page=${page}`);
       console.log(resp.data)
       console.log(resp.data.totalHits)
     return resp.data
-    }
-
-    pixabay()
-      .then(data => {        
-        createMarkup(data.hits)
-        btnLoadMore.hidden = false
-      })
-        .catch(error => console.log(error.message))
 }
 
 function onLoad() {
-  page += 1
-  pixabay(page)
+  pixabay()
       .then(data => {
         createMarkup(data.hits)
             btnLoadMore.hidden = false

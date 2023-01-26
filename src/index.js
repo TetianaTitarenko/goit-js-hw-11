@@ -8,35 +8,37 @@ const gallery = document.querySelector('.gallery');
 const searchForm = document.querySelector('.search-form');
 const btnLoadMore = document.querySelector('.load-more');
 
-btnLoadMore.hidden = true
+btnLoadMore.hidden = true;
 
-searchForm.addEventListener('submit', onSearch)
-btnLoadMore.addEventListener('click', onLoad)
-gallery.addEventListener("click", onClikcImg)
+searchForm.addEventListener('submit', onSearch);
+btnLoadMore.addEventListener('click', onLoad);
 
+const gallery1 = new SimpleLightbox('.gallery a', { captionDelay: 250 });
 let page = 1
 const URL = `https://pixabay.com/api/?key=33016808-d330fe94469becbda09795ec3&`
 
-function onSearch(e) {
-  e.preventDefault();
-        gallery.textContent = ''
-
-    pix()
-      .then(data => {
-        if (data.totalHits === 0) {
-         return Notify.failure('Sorry, there are no images matching your search query. Please try again.');
-        }       
-        createMarkup(data.hits)
-        btnLoadMore.hidden = false
-
-      })
-        .catch(error => console.log(error.message))
-}
-
-const pix = async function pixabay(page = 1) {
-    const search = searchForm.elements.searchQuery.value;
+async function pixabay(page = 1) {
+    const search = searchForm.elements.searchQuery.value.trim();
     const resp = await axios.get(`${URL}q=${search}&image_type=photo&orientation=horizontal&safesearch=true&per_page=40&page=${page}`);
     return resp.data
+}
+
+async function onSearch(e) {
+  e.preventDefault();
+  gallery.textContent = ''
+  if (e.currentTarget.elements.searchQuery.value === "") {
+    btnLoadMore.hidden = true
+    return Notify.failure('Please enter your search query');
+  }
+  try{ const p = await pixabay() 
+    page = 1;
+    if (p.totalHits === 0) {
+      btnLoadMore.hidden = true
+      return Notify.failure('Sorry, there are no images matching your search query. Please try again.');
+    }       
+    createMarkup(p.hits)
+    btnLoadMore.hidden = false}
+    catch {error => console.log(error.message)}
 }
 
 function createMarkup(arr) {
@@ -50,10 +52,10 @@ function createMarkup(arr) {
         downloads
     }) => `
       <div class="photo-card">
-        <a class="photo-item" href="${webformatURL}">
+        <a class="photo-item" href="${largeImageURL}">
           <img
             class="photo-img"
-            src="${largeImageURL}"
+            src="${webformatURL}"
             alt="${tags}"
             title=""
             loading="lazy"
@@ -75,30 +77,19 @@ function createMarkup(arr) {
         </div>
       </div>`).join('')
     
-    gallery.insertAdjacentHTML("beforeend", markup)    
+    gallery.insertAdjacentHTML("beforeend", markup);
+    gallery1.refresh();  
 }
 
-function onLoad() {
-  page += 1  
- 
-      pix(page)
-        .then(data => {
-          createMarkup(data.hits)
-          if (page >= data.totalHits / 40) {
-            btnLoadMore.hidden = true            
-            return Notify.failure('Sorry, there are no images matching your search query. Please try again.');
-  }
-          // btnLoadMore.hidden = true
-      })
-    .catch(error => console.log(error.message))
-}
+async function onLoad() {
+  page +=1; 
+  try { const p = await pixabay(page)
+      createMarkup(p.hits)
+      if (page >= p.totalHits / 40) {
+      btnLoadMore.hidden = true        
+        return Notify.failure('Sorry, there are no images matching your search query. Please try again.');
 
-function onClikcImg(event) {
-  event.preventDefault()
-    if (!event.target.classList.contains('.photo-item')) {
-        return;
-  }
-const gallery1 = new SimpleLightbox('.gallery a', { captionDelay: 250 });
-  
-gallery1.refresh();
+      }
+      }
+      catch {error => console.log(error.message)}
 }

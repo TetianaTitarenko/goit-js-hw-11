@@ -4,7 +4,7 @@
   justify-content: center;
   padding-top: 8px;
   padding-bottom: 8px;
-  background-color: rgb(200, 13, 238);
+  background-color: rgb(169, 201, 248);
 }
 
 .gallery {
@@ -24,6 +24,12 @@
   margin-right: 8px;
   margin-left: 8px;
   margin-bottom: 16px;
+  box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.2),
+    0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 2px 1px -1px rgba(0, 0, 0, 0.12);
+}
+
+.photo-card:hover {
+  transform: scale(1.03);
 }
 
 .photo-img {
@@ -42,11 +48,13 @@
   text-align: center;
   margin-right: auto;
   margin-left: auto;
+  font-size: 12px;
+  font-style: italic;
 }
 
 .load-more {
   width: 100px;
   margin-left: 45%;
   margin-bottom: 16px;
-  background-color: rgb(200, 13, 238);
+  background-color: rgb(169, 201, 248);
 }

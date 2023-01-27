@@ -26,7 +26,7 @@ async function pixabay(page = 1) {
 async function onSearch(e) {
   e.preventDefault();
   gallery.textContent = ''
-  if (e.currentTarget.elements.searchQuery.value === "") {
+  if (searchForm.elements.searchQuery.value.trim() === "") {
     btnLoadMore.hidden = true
     return Notify.failure('Please enter your search query');
   }
